@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Frontend-Backend Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        h2 { color: #666; margin-top: 0; }
+        .status { 
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .log {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            padding: 5px;
+            margin: 2px 0;
+            border-left: 3px solid #ccc;
+            padding-left: 10px;
+        }
+        .log-success { border-color: #28a745; }
+        .log-error { border-color: #dc3545; }
+        .log-info { border-color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Frontend-Backend Connection Test</h1>
+    <p>This page tests the connection between your Next.js frontend and Python backend.</p>
+
+    <!-- Backend Status -->
+    <div class="test-section">
+        <h2>1️⃣ Backend API Status</h2>
+        <button onclick="testBackend()">Test Backend Connection</button>
+        <div id="backend-status"></div>
+        <pre id="backend-response"></pre>
+    </div>
+
+    <!-- Fetch Nodes -->
+    <div class="test-section">
+        <h2>2️⃣ Node Data</h2>
+        <button onclick="fetchNodes()">Fetch Nodes from Backend</button>
+        <div id="nodes-status"></div>
+        <pre id="nodes-response"></pre>
+    </div>
+
+    <!-- Training Status -->
+    <div class="test-section">
+        <h2>3️⃣ Training Status</h2>
+        <button onclick="fetchTrainingStatus()">Get Training Status</button>
+        <button onclick="startTraining()">Start Training</button>
+        <button onclick="stopTraining()">Stop Training</button>
+        <div id="training-status"></div>
+        <pre id="training-response"></pre>
+    </div>
+
+    <!-- WebSocket Test -->
+    <div class="test-section">
+        <h2>4️⃣ WebSocket Connection</h2>
+        <button onclick="connectWebSocket()">Connect WebSocket</button>
+        <button onclick="disconnectWebSocket()">Disconnect</button>
+        <div id="ws-status"></div>
+        <div class="log" id="ws-log"></div>
+    </div>
+
+    <!-- Live Dashboard Link -->
+    <div class="test-section">
+        <h2>5️⃣ Open Dashboard</h2>
+        <p>If all tests pass, your dashboard should now show REAL data!</p>
+        <button onclick="window.open('http://localhost:3000', '_blank')" style="background: #28a745;">
+            🚀 Open Dashboard (localhost:3000)
+        </button>
+        <button onclick="window.open('http://localhost:8000/docs', '_blank')" style="background: #6c757d;">
+            📖 Open API Docs (localhost:8000/docs)
+        </button>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        const WS_URL = 'ws://localhost:8000/ws';
+        let ws = null;
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('ws-log');
+            if (logDiv) {
+                const entry = document.createElement('div');
+                entry.className = `log-entry log-${type}`;
+                entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                logDiv.appendChild(entry);
+                logDiv.scrollTop = logDiv.scrollHeight;
+            }
+        }
+
+        async function testBackend() {
+            const statusDiv = document.getElementById('backend-status');
+            const responseDiv = document.getElementById('backend-response');
+            
+            try {
+                statusDiv.innerHTML = '<span class="status info">Testing...</span>';
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                
+                statusDiv.innerHTML = '<span class="status success">✅ Backend is running!</span>';
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                statusDiv.innerHTML = '<span class="status error">❌ Backend not responding</span>';
+                responseDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function fetchNodes() {
+            const statusDiv = document.getElementById('nodes-status');
+            const responseDiv = document.getElementById('nodes-response');
+            
+            try {
+                statusDiv.innerHTML = '<span class="status info">Fetching...</span>';
+                const response = await fetch(`${API_URL}/api/nodes`);
+                const data = await response.json();
+                
+                const nodeCount = data.nodes ? data.nodes.length : 0;
+                statusDiv.innerHTML = `<span class="status success">✅ Found ${nodeCount} nodes</span>`;
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                statusDiv.innerHTML = '<span class="status error">❌ Failed to fetch nodes</span>';
+                responseDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function fetchTrainingStatus() {
+            const statusDiv = document.getElementById('training-status');
+            const responseDiv = document.getElementById('training-response');
+            
+            try {
+                statusDiv.innerHTML = '<span class="status info">Checking...</span>';
+                const response = await fetch(`${API_URL}/api/status`);
+                const data = await response.json();
+                
+                const isTraining = data.is_training;
+                statusDiv.innerHTML = `<span class="status ${isTraining ? 'success' : 'info'}">
+                    ${isTraining ? '🟢 Training Active' : '⚪ Idle'}
+                </span>`;
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                statusDiv.innerHTML = '<span class="status error">❌ Failed to get status</span>';
+                responseDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function startTraining() {
+            const statusDiv = document.getElementById('training-status');
+            const responseDiv = document.getElementById('training-response');
+            
+            try {
+                statusDiv.innerHTML = '<span class="status info">Starting...</span>';
+                const response = await fetch(`${API_URL}/api/training/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model_name: 'simple_cnn',
+                        dataset: 'mnist',
+                        epochs: 5,
+                        batch_size: 32,
+                        learning_rate: 0.001
+                    })
+                });
+                const data = await response.json();
+                
+                statusDiv.innerHTML = '<span class="status success">✅ Training started!</span>';
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                statusDiv.innerHTML = '<span class="status error">❌ Failed to start training</span>';
+                responseDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function stopTraining() {
+            const statusDiv = document.getElementById('training-status');
+            const responseDiv = document.getElementById('training-response');
+            
+            try {
+                statusDiv.innerHTML = '<span class="status info">Stopping...</span>';
+                const response = await fetch(`${API_URL}/api/training/stop`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                statusDiv.innerHTML = '<span class="status success">✅ Training stopped!</span>';
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                statusDiv.innerHTML = '<span class="status error">❌ Failed to stop training</span>';
+                responseDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        function connectWebSocket() {
+            const statusDiv = document.getElementById('ws-status');
+            
+            try {
+                log('Connecting to WebSocket...', 'info');
+                ws = new WebSocket(WS_URL);
+                
+                ws.onopen = () => {
+                    statusDiv.innerHTML = '<span class="status success">✅ WebSocket Connected</span>';
+                    log('WebSocket connection established!', 'success');
+                };
+                
+                ws.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        log(`Message received: ${JSON.stringify(data)}`, 'success');
+                    } catch {
+                        log(`Message received: ${event.data}`, 'success');
+                    }
+                };
+                
+                ws.onerror = (error) => {
+                    log(`WebSocket error: ${error}`, 'error');
+                };
+                
+                ws.onclose = () => {
+                    statusDiv.innerHTML = '<span class="status info">⚪ WebSocket Disconnected</span>';
+                    log('WebSocket connection closed', 'info');
+                };
+            } catch (error) {
+                statusDiv.innerHTML = '<span class="status error">❌ Connection failed</span>';
+                log(`Failed to connect: ${error.message}`, 'error');
+            }
+        }
+
+        function disconnectWebSocket() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+        }
+
+        // Auto-test on load
+        window.onload = () => {
+            setTimeout(testBackend, 500);
+        };
+    </script>
+</body>
+</html>

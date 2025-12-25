@@ -1,0 +1,32 @@
+{
+  "training": {
+    "model_architecture": "simple_cnn",
+    "dataset": "mnist",
+    "epochs": 10,
+    "batch_size": 64,
+    "learning_rate": 0.01,
+    "steps_per_epoch": 10
+  },
+  "nodes": {
+    "count": 10,
+    "simulated": true,
+    "base_compute_time": 0.1
+  },
+  "network": {
+    "profile": "good",
+    "base_latency_ms": 30,
+    "latency_variance_ms": 20,
+    "packet_loss_rate": 0.001
+  },
+  "aggregation": {
+    "strategy": "simple_average",
+    "timeout_seconds": 30.0,
+    "min_nodes_percentage": 0.8,
+    "gradient_clip_value": null
+  },
+  "blockchain": {
+    "enabled": false,
+    "rpc_endpoint": "http://localhost:8545",
+    "contract_address": "0x0000000000000000000000000000000000000000"
+  }
+}

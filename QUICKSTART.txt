@@ -1,0 +1,152 @@
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                 │
+│   🚀 HyperGPU - Quick Start for Teammates                      │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+
+📋 PREREQUISITES:
+  ✅ Python 3.13+     → python --version
+  ✅ Node.js 18+      → node --version
+  ✅ Git              → git --version
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 3-STEP SETUP:
+
+  1️⃣  Clone Repository
+      git clone <your-repo-url>
+      cd lnmhacks1
+
+  2️⃣  Install Dependencies
+      npm install
+      (wait ~3 minutes)
+
+  3️⃣  Start Everything
+      npm start
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🌐 ACCESS POINTS:
+
+  Frontend Dashboard:   http://localhost:3000
+  Backend API Docs:     http://localhost:8000/docs
+  Blockchain Node:      http://localhost:8546
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🧪 TEST YOUR SETUP:
+
+  1. Open http://localhost:3000
+  2. You should see dashboard with "0 / 0" nodes
+  3. Register a test node:
+
+     PowerShell:
+     ──────────
+     $body = @{
+         node_id = "test-node"
+         capabilities = @{
+             address = "192.168.1.100:8000"
+             gpu_specs = @{ model = "RTX 4090"; memory_gb = 24 }
+             compute_power = 1500.0
+         }
+     } | ConvertTo-Json -Depth 10
+     
+     Invoke-RestMethod -Uri "http://localhost:8000/api/nodes/register" `
+       -Method Post -Body $body -ContentType "application/json"
+
+     Linux/macOS:
+     ────────────
+     curl -X POST http://localhost:8000/api/nodes/register \
+       -H "Content-Type: application/json" \
+       -d '{"node_id":"test-node","capabilities":{"address":"192.168.1.100:8000","gpu_specs":{"model":"RTX 4090","memory_gb":24},"compute_power":1500.0}}'
+
+  4. Refresh dashboard → Should show 1 node! ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📂 PROJECT STRUCTURE:
+
+  lnmhacks1/
+  │
+  ├── 📦 package.json           # Run "npm start" here
+  │
+  ├── 📁 frontend/              # Next.js (Port 3000)
+  │   ├── src/pages/           # Dashboard pages
+  │   ├── src/components/      # React components
+  │   └── src/lib/             # API + State
+  │
+  ├── 📁 python-ml-service/    # FastAPI (Port 8000)
+  │   ├── src/api/             # REST endpoints
+  │   ├── src/core/            # Training logic
+  │   └── configs/             # Configuration
+  │
+  └── 📁 smart-contracts/      # Hardhat (Port 8546)
+      ├── contracts/           # Solidity
+      └── scripts/             # Deploy
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🛠️ COMMON COMMANDS:
+
+  Start all:        npm start
+  Backend only:     npm run dev:backend
+  Frontend only:    npm run dev:frontend
+  Blockchain only:  npm run dev:blockchain
+  
+  Stop:             Ctrl+C
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🐛 TROUBLESHOOTING:
+
+  Port in use:
+    Windows:  netstat -ano | findstr :8000
+              taskkill /PID <PID> /F
+    
+    Linux:    lsof -ti:8000 | xargs kill -9
+
+  Backend won't start:
+    cd python-ml-service
+    rm -rf venv
+    python -m venv venv
+    venv\Scripts\activate (Windows) or source venv/bin/activate (Linux)
+    pip install -r requirements.txt
+
+  Frontend errors:
+    Press Ctrl+Shift+R to hard refresh browser
+    Check http://localhost:8000/health
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📚 DOCUMENTATION:
+
+  • README.md              - Main documentation
+  • SETUP.md               - Detailed setup guide
+  • /docs                  - Project docs
+  • localhost:8000/docs    - API documentation (when running)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ SUCCESS CHECKLIST:
+
+  □ Backend running at localhost:8000/docs
+  □ Frontend running at localhost:3000
+  □ Can register a test node
+  □ See node in dashboard
+  □ All pages work (Dashboard, Nodes, Training, Blockchain, Settings)
+  □ WebSocket shows "Connected" (green indicator)
+  □ Browser console has no errors
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎉 ALL SET? START CODING!
+
+  1. Create branch:  git checkout -b feature/your-feature
+  2. Make changes
+  3. Test:           npm start
+  4. Commit:         git commit -m "feat: your changes"
+  5. Push & PR
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Need help? Check SETUP.md or ask teammates! 🚀

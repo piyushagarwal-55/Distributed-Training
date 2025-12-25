@@ -1,0 +1,65 @@
+{
+  "training": {
+    "model_architecture": "simple_cnn",
+    "dataset": "mnist",
+    "learning_rate": 0.001,
+    "batch_size": 64,
+    "epochs": 10,
+    "optimizer": "adam",
+    "num_nodes": 5,
+    "aggregation_strategy": "simple_average",
+    "synchronous": true,
+    "timeout_seconds": 30.0,
+    "device": "cpu",
+    "save_checkpoints": true,
+    "checkpoint_interval": 1,
+    "checkpoint_dir": "./checkpoints"
+  },
+  "network": {
+    "enable_simulation": true,
+    "base_latency_ms": 50.0,
+    "latency_variance_ms": 20.0,
+    "packet_loss_rate": 0.01,
+    "profiles": {
+      "perfect": {
+        "latency": 0,
+        "packet_loss": 0
+      },
+      "good": {
+        "latency": 20,
+        "packet_loss": 0.001
+      },
+      "average": {
+        "latency": 100,
+        "packet_loss": 0.01
+      },
+      "poor": {
+        "latency": 300,
+        "packet_loss": 0.05
+      }
+    },
+    "node_profiles": {}
+  },
+  "blockchain": {
+    "enabled": true,
+    "rpc_endpoint": "https://testnet-rpc.monad.xyz",
+    "chain_id": 10143,
+    "training_registry_address": "0x6f804CFf461e4273953372734A1f4c3174A704f6",
+    "contribution_tracker_address": "0xddeD26C873ef06939651ED4DEA59625784eDE98B",
+    "reward_distributor_address": "0xe7FE8cCC5c747FB90F34b4f1754Fc493C23d2737",
+    "abi_directory": "../smart-contracts/artifacts/contracts",
+    "gas_limit": 500000,
+    "gas_price_gwei": 100,
+    "max_retries": 3,
+    "wait_for_confirmation": true,
+    "confirmation_timeout": 120,
+    "record_per_epoch": true,
+    "batch_size": 10,
+    "enable_async_transactions": false,
+    "reward_strategy": 0,
+    "total_reward_pool_eth": 1.0,
+    "private_key": null
+  },
+  "log_level": "INFO",
+  "log_file": "logs/training.log"
+}

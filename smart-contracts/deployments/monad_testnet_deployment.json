@@ -1,0 +1,10 @@
+{
+  "network": "monad_testnet",
+  "deployer": "0x3eBA27c0AF5b16498272AB7661E996bf2FF0D1cA",
+  "timestamp": "2025-12-25T07:01:51.420Z",
+  "contracts": {
+    "TrainingRegistry": "0x6f804CFf461e4273953372734A1f4c3174A704f6",
+    "ContributionTracker": "0xddeD26C873ef06939651ED4DEA59625784eDE98B",
+    "RewardDistributor": "0xe7FE8cCC5c747FB90F34b4f1754Fc493C23d2737"
+  }
+}
