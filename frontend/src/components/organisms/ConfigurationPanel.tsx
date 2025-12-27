@@ -9,12 +9,30 @@ export const ConfigurationPanel: React.FC = () => {
   const { config, updateConfig, savePreset, loadPreset, presets } = useConfigStore();
   const { startTraining } = useTrainingStore();
   
-  const [localConfig, setLocalConfig] = useState(config);
+  const [localConfig, setLocalConfig] = useState<typeof config>(config);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [showPresetModal, setShowPresetModal] = useState(false);
   const [presetName, setPresetName] = useState('');
 
+  // Sync localConfig when config changes
+  React.useEffect(() => {
+    setLocalConfig(config);
+  }, [config]);
+
   console.log('[ConfigurationPanel] Rendering:', { config: localConfig, presetsCount: presets.length });
+
+  // Guard against undefined config
+  if (!localConfig?.training) {
+    return (
+      <div className="p-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
+          <div className="h-64 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   const validateConfig = () => {
     const errors: string[] = [];

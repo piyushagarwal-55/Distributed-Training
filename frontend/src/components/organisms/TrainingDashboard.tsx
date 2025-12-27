@@ -156,7 +156,7 @@ export const TrainingDashboard: React.FC = () => {
         />
         <MetricCard
           title="Learning Rate"
-          value={session?.config.learningRate || 'N/A'}
+          value={latestMetrics?.learningRate?.toFixed(4) || 'N/A'}
           icon="⚡"
           variant="purple"
         />
@@ -219,19 +219,19 @@ export const TrainingDashboard: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
               <p className="text-gray-600">Model</p>
-              <p className="font-semibold">{session.config.model}</p>
+              <p className="font-semibold">{session.modelName || 'simple_cnn'}</p>
             </div>
             <div>
               <p className="text-gray-600">Dataset</p>
-              <p className="font-semibold">{session.config.dataset}</p>
+              <p className="font-semibold">{session.dataset || 'MNIST'}</p>
             </div>
             <div>
-              <p className="text-gray-600">Batch Size</p>
-              <p className="font-semibold">{session.config.batchSize}</p>
+              <p className="text-gray-600">Total Epochs</p>
+              <p className="font-semibold">{session.totalEpochs}</p>
             </div>
             <div>
-              <p className="text-gray-600">Optimizer</p>
-              <p className="font-semibold">{session.config.optimizer}</p>
+              <p className="text-gray-600">Status</p>
+              <p className="font-semibold capitalize">{session.status}</p>
             </div>
           </div>
         </Card>
