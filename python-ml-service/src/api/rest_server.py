@@ -13,11 +13,20 @@ import json
 from datetime import datetime
 
 from ..utils.logger import get_logger
-from ..core.coordinator import TrainingCoordinator
-from ..models.config import SystemConfig, TrainingConfig
-from ..models.metrics import TrainingMetrics, AggregatedMetrics
 
 logger = get_logger(__name__)
+
+# Try to import torch-dependent modules
+TORCH_AVAILABLE = False
+try:
+    from ..core.coordinator import TrainingCoordinator
+    from ..models.config import SystemConfig, TrainingConfig
+    from ..models.metrics import TrainingMetrics, AggregatedMetrics
+    TORCH_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"PyTorch not available, running in demo mode: {e}")
+    TrainingCoordinator = None
+    SystemConfig = None
 
 
 # Request/Response Models
@@ -454,21 +463,108 @@ def create_api_server(coordinator: TrainingCoordinator, host: str = "0.0.0.0", p
 # This will use a default configuration
 import signal
 
-# Disable signal handlers in coordinator when used as API module
-original_signal = signal.signal
-
-from ..models.config import SystemConfig
-
-# Create config with blockchain disabled for API-only mode
-_default_config = SystemConfig()
-_default_config.blockchain.enabled = False
-
-_default_coordinator = TrainingCoordinator(_default_config)
-
-# Remove signal handlers that interfere with uvicorn
-signal.signal(signal.SIGINT, signal.SIG_DFL)
-if hasattr(signal, 'SIGBREAK'):
-    signal.signal(signal.SIGBREAK, signal.SIG_DFL)
-
-_api_server = APIServer(_default_coordinator)
-app = _api_server.app
+if TORCH_AVAILABLE:
+    from ..models.config import SystemConfig as SC
+    
+    # Create config with blockchain disabled for API-only mode
+    _default_config = SC()
+    _default_config.blockchain.enabled = False
+    
+    _default_coordinator = TrainingCoordinator(_default_config)
+    
+    # Remove signal handlers that interfere with uvicorn
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    if hasattr(signal, 'SIGBREAK'):
+        signal.signal(signal.SIGBREAK, signal.SIG_DFL)
+    
+    _api_server = APIServer(_default_coordinator)
+    app = _api_server.app
+else:
+    # Demo mode without PyTorch
+    app = FastAPI(title="HyperGPU API (Demo Mode)", version="1.0.0")
+    
+    # Configure CORS
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:3000", "http://localhost:3001", "*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    
+    # Demo data
+    demo_nodes = [
+        {"node_id": "node-1", "status": "active", "gpu_model": "RTX 4090", "gpu_memory_gb": 24, "compute_capability": 8.9},
+        {"node_id": "node-2", "status": "active", "gpu_model": "RTX 3080", "gpu_memory_gb": 10, "compute_capability": 8.6},
+        {"node_id": "node-3", "status": "idle", "gpu_model": "A100", "gpu_memory_gb": 40, "compute_capability": 8.0},
+    ]
+    
+    demo_metrics = {
+        "loss": 0.234,
+        "accuracy": 0.876,
+        "epoch": 5,
+        "step": 1250,
+        "learning_rate": 0.001,
+        "throughput": 1250.5
+    }
+    
+    @app.get("/")
+    async def root():
+        return {"message": "HyperGPU API Server (Demo Mode)", "version": "1.0.0", "torch_available": False}
+    
+    @app.get("/health")
+    async def health_check():
+        return {"status": "healthy", "timestamp": datetime.now().isoformat(), "mode": "demo"}
+    
+    @app.get("/api/status")
+    async def get_status():
+        return {
+            "is_training": True,
+            "current_epoch": 5,
+            "current_step": 1250,
+            "total_steps": 5000,
+            "num_nodes": 3,
+            "active_nodes": 2,
+            "blockchain_connected": True
+        }
+    
+    @app.get("/api/metrics")
+    async def get_metrics():
+        return {"metrics": [demo_metrics], "count": 1}
+    
+    @app.get("/api/nodes")
+    async def get_nodes():
+        return {"nodes": demo_nodes, "count": len(demo_nodes)}
+    
+    @app.get("/api/nodes/{node_id}")
+    async def get_node(node_id: str):
+        node = next((n for n in demo_nodes if n["node_id"] == node_id), None)
+        if not node:
+            raise HTTPException(status_code=404, detail=f"Node {node_id} not found")
+        return {"node": node, "performance_history": [], "health": {"status": "healthy"}}
+    
+    @app.post("/api/training/start")
+    async def start_training():
+        return {"status": "started", "message": "Training session started (demo mode)"}
+    
+    @app.post("/api/training/stop")
+    async def stop_training():
+        return {"status": "stopped", "message": "Training session stopped (demo mode)"}
+    
+    @app.get("/api/config")
+    async def get_config():
+        return {"config": {"mode": "demo", "torch_available": False}}
+    
+    @app.get("/api/blockchain/session")
+    async def get_blockchain_session():
+        return {"session": {"session_id": "demo-session-001", "status": "active"}}
+    
+    @app.get("/api/blockchain/contributions")
+    async def get_contributions():
+        return {"contributions": [
+            {"node_id": "node-1", "contribution": 0.45, "rewards": 150},
+            {"node_id": "node-2", "contribution": 0.35, "rewards": 120},
+            {"node_id": "node-3", "contribution": 0.20, "rewards": 80}
+        ]}
+    
+    logger.info("Running in demo mode without PyTorch")
