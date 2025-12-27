@@ -1,19 +1,44 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useTrainingStore } from '@/lib/store';
 
 export default function TrainingPage() {
-  const { session, metrics, isTraining, startTraining, stopTraining, pauseTraining } = useTrainingStore();
+  const { session, metrics, isTraining, startTraining, stopTraining, pauseTraining, resumeTraining, addMetric } = useTrainingStore();
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
   const latestMetric = metrics[metrics.length - 1];
   const progress = session ? (session.currentEpoch / session.totalEpochs) * 100 : 0;
+
+  // Simulate training progress
+  useEffect(() => {
+    if (isTraining && session) {
+      intervalRef.current = setInterval(() => {
+        const currentEpoch = session.currentEpoch + 1;
+        if (currentEpoch <= session.totalEpochs) {
+          addMetric({
+            epoch: currentEpoch,
+            step: currentEpoch * 100,
+            loss: Math.max(0.1, 2.5 - (currentEpoch * 0.2) + (Math.random() * 0.1)),
+            accuracy: Math.min(0.99, 0.5 + (currentEpoch * 0.04) + (Math.random() * 0.02)),
+            learningRate: 0.001,
+            timestamp: new Date().toISOString(),
+          });
+        } else {
+          stopTraining();
+        }
+      }, 2000);
+    }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isTraining, session?.currentEpoch]);
 
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Training</h1>
-          <p className="text-gray-500 mt-1">Monitor and control training sessions</p>
+          <h1 className="text-xl font-semibold text-gray-900">Training</h1>
+          <p className="text-sm text-gray-500 mt-1">Monitor and control training sessions</p>
         </div>
         <div className="flex gap-2">
           {!isTraining ? (
@@ -22,10 +47,16 @@ export default function TrainingPage() {
             </button>
           ) : (
             <>
-              <button onClick={() => pauseTraining()} className="btn btn-secondary">
-                Pause
-              </button>
-              <button onClick={() => stopTraining()} className="btn btn-secondary text-red-600 hover:text-red-700">
+              {session?.status === 'paused' ? (
+                <button onClick={() => resumeTraining()} className="btn btn-primary">
+                  Resume
+                </button>
+              ) : (
+                <button onClick={() => pauseTraining()} className="btn btn-secondary">
+                  Pause
+                </button>
+              )}
+              <button onClick={() => stopTraining()} className="btn btn-danger">
                 Stop
               </button>
             </>
@@ -33,28 +64,29 @@ export default function TrainingPage() {
         </div>
       </div>
 
-      {/* Status */}
+      {/* Status Card */}
       <div className="card p-5">
         <div className="flex items-center gap-3 mb-4">
-          <div className={`w-3 h-3 rounded-full ${isTraining ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`} />
-          <span className="font-medium">{isTraining ? 'Training in Progress' : 'Idle'}</span>
+          <span className={`status-dot ${isTraining ? 'status-online animate-pulse-slow' : 'status-offline'}`} style={{ width: 10, height: 10 }} />
+          <span className="font-medium text-gray-900">
+            {isTraining ? (session?.status === 'paused' ? 'Paused' : 'Training in Progress') : 'Ready to Train'}
+          </span>
         </div>
+        
         {session && (
-          <>
-            <div className="h-2 bg-gray-100 rounded-full overflow-hidden mb-2">
-              <div 
-                className="h-full bg-indigo-600 transition-all duration-500"
-                style={{ width: `${progress}%` }}
-              />
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500">Epoch {session.currentEpoch} of {session.totalEpochs}</span>
+              <span className="font-medium">{progress.toFixed(0)}%</span>
             </div>
-            <p className="text-sm text-gray-500">
-              Epoch {session.currentEpoch} of {session.totalEpochs} ({progress.toFixed(1)}%)
-            </p>
-          </>
+            <div className="progress-bar">
+              <div className="progress-fill" style={{ width: `${progress}%` }} />
+            </div>
+          </div>
         )}
       </div>
 
-      {/* Metrics */}
+      {/* Metrics Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="stat-card">
           <p className="stat-label">Loss</p>
@@ -74,70 +106,69 @@ export default function TrainingPage() {
         </div>
       </div>
 
-      {/* Charts placeholder */}
+      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="card p-5">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">Loss Over Time</h3>
-          <div className="h-48 bg-slate-50 rounded-lg flex items-center justify-center">
+          <h3 className="text-sm font-medium text-gray-900 mb-4">Loss</h3>
+          <div className="h-40 flex items-end gap-1">
             {metrics.length > 0 ? (
-              <div className="w-full h-full p-4">
-                <div className="flex items-end justify-between h-full gap-1">
-                  {metrics.slice(-20).map((m, i) => (
-                    <div 
-                      key={i}
-                      className="bg-indigo-500 rounded-t w-full transition-all"
-                      style={{ height: `${Math.max(10, (1 - m.loss) * 100)}%` }}
-                    />
-                  ))}
-                </div>
-              </div>
+              metrics.slice(-20).map((m, i) => (
+                <div 
+                  key={i}
+                  className="flex-1 bg-gray-900 rounded-t transition-all duration-300"
+                  style={{ height: `${Math.max(5, (1 - m.loss / 3) * 100)}%` }}
+                  title={`Loss: ${m.loss.toFixed(4)}`}
+                />
+              ))
             ) : (
-              <p className="text-gray-400 text-sm">No data yet</p>
+              <div className="flex-1 flex items-center justify-center text-sm text-gray-400">
+                Start training to see metrics
+              </div>
             )}
           </div>
         </div>
+        
         <div className="card p-5">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">Accuracy Over Time</h3>
-          <div className="h-48 bg-slate-50 rounded-lg flex items-center justify-center">
+          <h3 className="text-sm font-medium text-gray-900 mb-4">Accuracy</h3>
+          <div className="h-40 flex items-end gap-1">
             {metrics.length > 0 ? (
-              <div className="w-full h-full p-4">
-                <div className="flex items-end justify-between h-full gap-1">
-                  {metrics.slice(-20).map((m, i) => (
-                    <div 
-                      key={i}
-                      className="bg-green-500 rounded-t w-full transition-all"
-                      style={{ height: `${m.accuracy * 100}%` }}
-                    />
-                  ))}
-                </div>
-              </div>
+              metrics.slice(-20).map((m, i) => (
+                <div 
+                  key={i}
+                  className="flex-1 bg-emerald-500 rounded-t transition-all duration-300"
+                  style={{ height: `${m.accuracy * 100}%` }}
+                  title={`Accuracy: ${(m.accuracy * 100).toFixed(1)}%`}
+                />
+              ))
             ) : (
-              <p className="text-gray-400 text-sm">No data yet</p>
+              <div className="flex-1 flex items-center justify-center text-sm text-gray-400">
+                Start training to see metrics
+              </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Session Info */}
+      {/* Session Details */}
       {session && (
         <div className="card p-5">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">Session Details</h3>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-            <div>
-              <p className="text-gray-500">Session ID</p>
-              <p className="font-mono text-xs">{session.id}</p>
+          <h3 className="text-sm font-medium text-gray-900 mb-4">Session Details</h3>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <p className="text-xs text-gray-500 mb-1">Session ID</p>
+              <p className="text-sm font-mono truncate">{session.id}</p>
             </div>
-            <div>
-              <p className="text-gray-500">Model</p>
-              <p className="font-medium">{session.modelName}</p>
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <p className="text-xs text-gray-500 mb-1">Model</p>
+              <p className="text-sm font-medium">{session.modelName}</p>
             </div>
-            <div>
-              <p className="text-gray-500">Dataset</p>
-              <p className="font-medium">{session.dataset}</p>
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <p className="text-xs text-gray-500 mb-1">Dataset</p>
+              <p className="text-sm font-medium">{session.dataset}</p>
             </div>
-            <div>
-              <p className="text-gray-500">Started</p>
-              <p className="font-medium">{new Date(session.startTime).toLocaleTimeString()}</p>
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <p className="text-xs text-gray-500 mb-1">Started</p>
+              <p className="text-sm font-medium">{new Date(session.startTime).toLocaleTimeString()}</p>
             </div>
           </div>
         </div>
