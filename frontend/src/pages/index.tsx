@@ -10,8 +10,6 @@ export default function HomePage() {
   const { session, isTraining, metrics } = useTrainingStore();
   const { nodes } = useNodeStore();
   const { isConnected } = useBlockchainStore();
-  
-  console.log('[HomePage] Rendering:', { session, isTraining, nodeCount: nodes.length });
 
   const onlineNodes = nodes.filter(n => n.status === 'online').length;
   const latestMetric = metrics[metrics.length - 1];

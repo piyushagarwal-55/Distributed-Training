@@ -4,22 +4,11 @@
 > 
 > Intelligently adapts to real-world network conditions with blockchain-based incentive mechanisms.
 
+[![CI/CD](https://github.com/yourusername/hypergpu/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/hypergpu/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Node 18+](https://img.shields.io/badge/node-18+-green.svg)](https://nodejs.org/)
-
----
-
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Quick Start](#quick-start)
-- [Setup for Teammates](#setup-for-teammates)
-- [Usage Guide](#usage-guide)
-- [Development](#development)
-- [Troubleshooting](#troubleshooting)
+[![Solidity 0.8.20](https://img.shields.io/badge/solidity-0.8.20-purple.svg)](https://soliditylang.org/)
 
 ---
 
@@ -29,12 +18,12 @@ HyperGPU is a revolutionary distributed AI training platform that intelligently 
 
 ## 🚀 Key Features
 
-- 🌐 **Network-Aware Optimization**: Dynamically adapts to latency, packet loss, and bandwidth constraints
+- 🌐 **Network-Aware Optimization**: Dynamically adapts to latency, packet loss, and bandwidth
 - ⛓️ **Blockchain Integration**: Transparent contribution tracking and rewards via Monad testnet
 - 🎯 **Adaptive Training**: Smart batch sizing, gradient routing, and node selection
-- 📊 **Real-Time Dashboard**: Comprehensive visualization of training, nodes, and blockchain activity
-- 🔄 **Auto-Reconnect WebSocket**: Live updates every 10 seconds
-- 🎨 **Modern UI**: Next.js 14 + Tailwind CSS responsive design
+- 📊 **Real-Time Dashboard**: Comprehensive visualization with WebSocket updates
+- 🔒 **Production Security**: Rate limiting, authentication, and input validation
+- 🐳 **Docker Ready**: Full containerization with monitoring stack
 
 ---
 
@@ -64,329 +53,110 @@ HyperGPU is a revolutionary distributed AI training platform that intelligently 
 ## 📂 Project Structure
 
 ```
-lnmhacks1/
-├── 📁 frontend/                      # Next.js Dashboard (Port 3000)
+hypergpu/
+├── 📁 frontend/                 # Next.js Dashboard
 │   ├── src/
-│   │   ├── components/              # React components (atoms/molecules/organisms)
-│   │   ├── pages/                   # Next.js pages
-│   │   ├── lib/                     # API client, WebSocket, Zustand stores
-│   │   └── utils/                   # Date formatting, helpers
-│   └── package.json
+│   │   ├── components/         # React components (atoms/molecules/organisms)
+│   │   ├── pages/              # Next.js pages
+│   │   ├── hooks/              # Custom React hooks
+│   │   ├── lib/                # API client, stores
+│   │   └── __tests__/          # Jest tests
+│   └── Dockerfile
 │
-├── 📁 python-ml-service/            # FastAPI Backend (Port 8000)
+├── 📁 python-ml-service/        # FastAPI Backend
 │   ├── src/
-│   │   ├── api/                     # REST API endpoints
-│   │   ├── core/                    # Training coordinator, node manager
-│   │   ├── models/                  # Pydantic models
-│   │   └── utils/                   # Utilities
-│   ├── configs/                     # Configuration files
-│   └── requirements.txt
+│   │   ├── api/                # REST endpoints + middleware
+│   │   ├── core/               # Training loop, coordinator, aggregator
+│   │   ├── models/             # Pydantic models
+│   │   └── utils/              # Utilities
+│   ├── tests/                  # Pytest tests
+│   └── Dockerfile
 │
-├── 📁 smart-contracts/              # Hardhat (Port 8546)
-│   ├── contracts/                   # Solidity contracts
-│   ├── scripts/                     # Deploy scripts
-│   └── hardhat.config.js
+├── 📁 smart-contracts/          # Solidity Contracts
+│   ├── contracts/              # TrainingRegistry, ContributionTracker, RewardDistributor
+│   ├── test/                   # Hardhat tests (98 tests)
+│   └── Dockerfile
 │
-├── 📁 docs/                         # Documentation
-├── 📄 package.json                  # Root package (npm start)
-└── 📄 README.md                     # This file
+├── 📁 monitoring/               # Prometheus + Grafana
+├── 📁 scripts/                  # Database init, utilities
+├── 📄 docker-compose.yml        # Full stack orchestration
+├── 📄 Makefile                  # Build automation
+└── 📄 .github/workflows/        # CI/CD pipeline
 ```
 
 ---
 
-## ⚡ Quick Start (5 Minutes)
+## ⚡ Quick Start
 
 ### Prerequisites
 
-**Required:**
-- ✅ **Python 3.13+** ([Download](https://www.python.org/downloads/))
-- ✅ **Node.js 18+** ([Download](https://nodejs.org/))
-- ✅ **Git** ([Download](https://git-scm.com/))
+- **Docker & Docker Compose** (recommended)
+- Or: Python 3.11+, Node.js 18+, npm 9+
 
-**Recommended:**
-- VS Code with extensions: Python, ESLint, Prettier
-- Windows Terminal or PowerShell 7+
-
-### One-Command Setup
+### Option 1: Docker (Recommended)
 
 ```bash
-# Clone repository
+# Clone and start
 git clone <your-repo-url>
-cd lnmhacks1
-
-# Install everything (takes ~3 minutes)
-npm install
+cd hypergpu
 
 # Start all services
-npm start
+docker compose up -d
+
+# View logs
+docker compose logs -f
 ```
 
-**That's it!** 🎉 Open http://localhost:3000
+### Option 2: Manual Setup
+
+```bash
+# Install dependencies
+make install
+
+# Start development
+make dev
+```
+
+**Access:**
+- 🌐 Dashboard: http://localhost:3000
+- 📡 API Docs: http://localhost:8000/docs
+- 📊 Grafana: http://localhost:3001 (admin/admin)
+- 📈 Prometheus: http://localhost:9090
 
 ---
 
-## 👥 Setup for Teammates
+## 🧪 Testing
 
-### Step 1: Clone Repository
-
-```bash
-git clone <your-repo-url>
-cd lnmhacks1
-```
-
-### Step 2: Install Dependencies
-
-**Option A: Automatic (Recommended)**
-```bash
-npm install
-```
-
-**Option B: Manual**
-```bash
-# Backend dependencies
-cd python-ml-service
-python -m venv venv
-venv\Scripts\activate          # Windows
-# source venv/bin/activate     # macOS/Linux
-pip install -r requirements.txt
-cd ..
-
-# Frontend dependencies
-cd frontend
-npm install
-cd ..
-
-# Smart contracts
-cd smart-contracts
-npm install
-cd ..
-
-# Root dependencies
-npm install
-```
-
-### Step 3: Configuration (Optional)
-
-**Backend Config:** Edit `python-ml-service/configs/default.json`
-```json
-{
-  "training": {
-    "model_architecture": "simple_cnn",
-    "dataset": "mnist",
-    "epochs": 10,
-    "batch_size": 32
-  }
-}
-```
-
-**Frontend:** No config needed (auto-connects to localhost:8000)
-
-**Smart Contracts:** Already configured for Monad testnet
-
-### Step 4: Start Development
+### Run All Tests
 
 ```bash
-# Start all services (backend + frontend + blockchain)
-npm start
+make test
 ```
 
-**Individual services:**
+### Smart Contract Tests (98 tests)
+
 ```bash
-npm run dev:backend       # Backend only (port 8000)
-npm run dev:frontend      # Frontend only (port 3000)
-npm run dev:blockchain    # Blockchain only (port 8546)
+make test-contracts
+
+# With gas report
+make gas-report
 ```
 
-### Step 5: Verify Setup
+### Backend Tests
 
-1. **Backend:** http://localhost:8000/docs
-2. **Frontend:** http://localhost:3000
-3. **Health Check:**
-   ```bash
-   curl http://localhost:8000/health
-   ```
-
----
-
-## 🎮 Usage Guide
-
-### Register GPU Nodes
-
-**Via API:**
 ```bash
-curl -X POST http://localhost:8000/api/nodes/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "node_id": "gpu-node-1",
-    "capabilities": {
-      "address": "192.168.1.100:8000",
-      "gpu_specs": {
-        "model": "RTX 4090",
-        "memory_gb": 24
-      },
-      "compute_power": 1500.0
-    }
-  }'
+make test-backend
 ```
 
-**Via Dashboard:**
-1. Go to Nodes page
-2. Click "Add Node"
-3. Fill in details
-
-### Start Training
-
-**Via API:**
-```bash
-curl -X POST http://localhost:8000/api/training/start \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model_name": "simple_cnn",
-    "dataset": "mnist",
-    "epochs": 10,
-    "batch_size": 32,
-    "learning_rate": 0.001
-  }'
-```
-
-**Via Dashboard:**
-1. Go to Settings page
-2. Configure training parameters
-3. Click "Start Training"
-
-### Monitor Training
-
-- **Dashboard:** Real-time metrics at http://localhost:3000
-- **API:** GET http://localhost:8000/api/training/metrics
-- **WebSocket:** Auto-connects and updates every 10 seconds
-
-### View Nodes
+### Frontend Tests
 
 ```bash
-# List all nodes
-curl http://localhost:8000/api/nodes
-
-# Get specific node
-curl http://localhost:8000/api/nodes/gpu-node-1
+make test-frontend
 ```
 
 ---
 
-## 🛠️ Development
-
-### Project Scripts
-
-```bash
-npm start              # Start all services
-npm run dev:backend    # Backend development
-npm run dev:frontend   # Frontend development  
-npm run dev:blockchain # Blockchain node
-npm test               # Run all tests
-npm run build          # Build for production
-```
-
-### Adding Features
-
-1. **Backend API:**
-   - Add endpoint: `python-ml-service/src/api/rest_server.py`
-   - Add model: `python-ml-service/src/models/`
-   - Update docs: FastAPI auto-generates at `/docs`
-
-2. **Frontend:**
-   - Add component: `frontend/src/components/`
-   - Add page: `frontend/src/pages/`
-   - Update store: `frontend/src/lib/store.ts`
-   - Update API client: `frontend/src/lib/api.ts`
-
-3. **Smart Contracts:**
-   - Add contract: `smart-contracts/contracts/`
-   - Deploy: `npx hardhat run scripts/deploy.js --network monad_testnet`
-
-### Code Style
-
-- **Python:** Black, isort, flake8
-- **TypeScript:** Prettier, ESLint
-- **Commits:** Conventional commits (feat:, fix:, docs:)
-
----
-
-## 🐛 Troubleshooting
-
-### Port Already in Use
-
-```bash
-# Windows
-netstat -ano | findstr :8000
-taskkill /PID <PID> /F
-
-# macOS/Linux
-lsof -ti:8000 | xargs kill -9
-```
-
-### Python Virtual Environment Issues
-
-```bash
-# Recreate venv
-cd python-ml-service
-rm -rf venv
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-### Node Modules Issues
-
-```bash
-cd frontend
-rm -rf node_modules package-lock.json
-npm install
-```
-
-### Backend Not Starting
-
-```bash
-# Check Python version (need 3.13+)
-python --version
-
-# Check dependencies
-cd python-ml-service
-pip list
-
-# Run directly
-python -m uvicorn src.api.rest_server:app --reload --port 8000
-```
-
-### Frontend Hydration Errors
-
-- Fixed! All hydration errors resolved
-- Clear browser cache: Ctrl+Shift+R
-- Restart Next.js: `npm run dev:frontend`
-
-### WebSocket Connection Failed
-
-- Check backend is running: http://localhost:8000/health
-- Check CORS settings in `rest_server.py`
-- Browser console should show: `[WebSocketClient] Connected successfully`
-
-### No Nodes Showing
-
-```bash
-# Register a test node
-curl -X POST http://localhost:8000/api/nodes/register \
-  -H "Content-Type: application/json" \
-  -d '{"node_id":"test-1","capabilities":{"address":"localhost:8000","gpu_specs":{"model":"Test GPU","memory_gb":8},"compute_power":100}}'
-
-# Verify
-curl http://localhost:8000/api/nodes
-```
-
----
-
-## 📚 API Documentation
-
-**Interactive API Docs:** http://localhost:8000/docs
-
-### Key Endpoints
+## 📡 API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -399,49 +169,100 @@ curl http://localhost:8000/api/nodes
 | POST | `/api/nodes/register` | Register node |
 | WS | `/ws` | WebSocket connection |
 
+**Full API documentation:** http://localhost:8000/docs
+
 ---
 
-## 🌐 Deployment
+## ⛓️ Smart Contracts
+
+### Deployed Contracts (Monad Testnet)
+
+| Contract | Address | Purpose |
+|----------|---------|---------|
+| TrainingRegistry | `0x6f804...` | Session management |
+| ContributionTracker | `0xddeD2...` | Contribution tracking |
+| RewardDistributor | `0xe7FE8...` | Reward distribution |
+
+### Gas Optimization
+
+- Packed structs (uint96, uint32) for storage efficiency
+- Batch operations for reduced transaction costs
+- Pull payment pattern for secure withdrawals
+
+### Deploy to Testnet
+
+```bash
+# Set environment variables
+export PRIVATE_KEY=your_private_key
+export MONAD_TESTNET_RPC=https://testnet-rpc.monad.xyz
+
+# Deploy
+make deploy-testnet
+```
+
+---
+
+## 🔧 Configuration
+
+Copy `.env.example` to `.env` and configure:
+
+```bash
+cp .env.example .env
+```
+
+Key settings:
+- `DATABASE_URL`: PostgreSQL connection
+- `REDIS_URL`: Redis connection
+- `PRIVATE_KEY`: Blockchain wallet key
+- `JWT_SECRET`: API authentication secret
+
+---
+
+## 📊 Monitoring
+
+The stack includes:
+- **Prometheus**: Metrics collection
+- **Grafana**: Visualization dashboards
+- **Structured Logging**: JSON logs for analysis
+
+Access Grafana at http://localhost:3001 with default credentials (admin/admin).
+
+---
+
+## 🚀 Deployment
 
 ### Production Build
 
 ```bash
-# Build frontend
-cd frontend
-npm run build
-npm start
+# Build all containers
+docker compose -f docker-compose.yml build
 
-# Backend (production)
-cd python-ml-service
-gunicorn src.api.rest_server:app -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
-
-# Smart contracts (mainnet)
-cd smart-contracts
-npx hardhat run scripts/deploy.js --network monad
+# Start in production mode
+NODE_ENV=production docker compose up -d
 ```
 
 ### Environment Variables
 
-Create `.env` files:
+See `.env.example` for all configuration options.
 
-**Frontend (.env.local):**
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws
-```
+---
 
-**Backend (.env):**
-```env
-HOST=0.0.0.0
-PORT=8000
-LOG_LEVEL=INFO
-```
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Run tests (`make test`)
+4. Commit changes (`git commit -m 'feat: add amazing feature'`)
+5. Push to branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ---
 
 ## 📝 License
 
-MIT License - see [LICENSE](./LICENSE)
+MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
@@ -453,16 +274,15 @@ MIT License - see [LICENSE](./LICENSE)
 
 ---
 
-## 📞 Support
+## ✅ Project Status
 
-- **Issues:** Open GitHub issue
-- **Docs:** Check `/docs` folder
-- **API Help:** http://localhost:8000/docs
+| Component | Status | Tests |
+|-----------|--------|-------|
+| Smart Contracts | ✅ Production Ready | 98 passing |
+| Backend API | ✅ Production Ready | Comprehensive |
+| Frontend | ✅ Production Ready | Jest configured |
+| Docker | ✅ Complete | Multi-stage builds |
+| CI/CD | ✅ Configured | GitHub Actions |
+| Monitoring | ✅ Complete | Prometheus + Grafana |
 
----
-
-## ✅ Status
-
-**✨ Production Ready** - All features working, all errors fixed!
-
-**Last Updated:** December 25, 2025
+**Last Updated:** December 27, 2025

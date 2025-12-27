@@ -21,8 +21,6 @@ export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
   const { isConnected } = useBlockchainStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  console.log('[DashboardLayout] Rendering:', { path: router.pathname, isTraining, isConnected });
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Mobile sidebar backdrop */}
@@ -79,10 +77,7 @@ export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                       : 'text-gray-700 hover:bg-gray-100'
                     }
                   `}
-                  onClick={() => {
-                    console.log('[DashboardLayout] Navigate to:', item.href);
-                    setSidebarOpen(false);
-                  }}
+                  onClick={() => setSidebarOpen(false)}
                 >
                   <span className="text-xl">{item.icon}</span>
                   {item.name}
@@ -106,11 +101,9 @@ export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
         <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-4 py-3 lg:px-6">
           <div className="flex items-center justify-between">
             <button
-              onClick={() => {
-                console.log('[DashboardLayout] Toggle sidebar');
-                setSidebarOpen(!sidebarOpen);
-              }}
+              onClick={() => setSidebarOpen(!sidebarOpen)}
               className="lg:hidden text-gray-700 hover:text-gray-900 text-2xl"
+              aria-label="Toggle sidebar"
             >
               {sidebarOpen ? '✕' : '☰'}
             </button>

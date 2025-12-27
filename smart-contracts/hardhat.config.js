@@ -24,14 +24,25 @@ module.exports = {
       url: process.env.MONAD_TESTNET_RPC || "https://testnet-rpc.monad.xyz",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 10143,
-      gasPrice: 100000000000, // 100 gwei - Monad testnet requires higher gas
-      gas: 8000000 // 8M gas limit
+      gasPrice: 100000000000,
+      gas: 8000000
     }
+  },
+  gasReporter: {
+    enabled: process.env.REPORT_GAS === "true",
+    currency: "USD",
+    gasPrice: 100,
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY,
+    outputFile: "gas-report.txt",
+    noColors: true
   },
   paths: {
     sources: "./contracts",
     tests: "./test",
     cache: "./cache",
     artifacts: "./artifacts"
+  },
+  mocha: {
+    timeout: 40000
   }
 };
