@@ -314,19 +314,19 @@ export const BlockchainDashboard: React.FC = () => {
           <div>
             <p className="text-gray-600 mb-1">Training Registry</p>
             <p className="font-mono text-xs bg-gray-50 p-2 rounded break-all">
-              0x5FbDB2315678afecb367f032d93F642f64180aa3
+              0x8288000299F72407b63D9cC8eee8cDEfB4DB529f
             </p>
           </div>
           <div>
             <p className="text-gray-600 mb-1">Contribution Tracker</p>
             <p className="font-mono text-xs bg-gray-50 p-2 rounded break-all">
-              0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+              0xcE51Bc755396e63f849004580Ac37b7cfF616869
             </p>
           </div>
           <div>
             <p className="text-gray-600 mb-1">Reward Distributor</p>
             <p className="font-mono text-xs bg-gray-50 p-2 rounded break-all">
-              0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
+              0xd0C9942475FAA2738F1D75931a97ACD30d0C3833
             </p>
           </div>
           <div>

@@ -1,10 +1,10 @@
 {
   "network": "monad_testnet",
   "deployer": "0x3eBA27c0AF5b16498272AB7661E996bf2FF0D1cA",
-  "timestamp": "2025-12-25T07:01:51.420Z",
+  "timestamp": "2025-12-27T14:51:22.251Z",
   "contracts": {
-    "TrainingRegistry": "0x6f804CFf461e4273953372734A1f4c3174A704f6",
-    "ContributionTracker": "0xddeD26C873ef06939651ED4DEA59625784eDE98B",
-    "RewardDistributor": "0xe7FE8cCC5c747FB90F34b4f1754Fc493C23d2737"
+    "TrainingRegistry": "0x8288000299F72407b63D9cC8eee8cDEfB4DB529f",
+    "ContributionTracker": "0xcE51Bc755396e63f849004580Ac37b7cfF616869",
+    "RewardDistributor": "0xd0C9942475FAA2738F1D75931a97ACD30d0C3833"
   }
 }
